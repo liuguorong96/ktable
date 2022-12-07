@@ -48,18 +48,20 @@ export const Classes = {
 
   tableHeaderCellLine: `${prefix}table-header-cell-line`,
 
-  tableFilterTrigger:`${prefix}filter-trigger`,
-  tableSortIcon:`${prefix}sort-icon`,
+  tableFilterTrigger: `${prefix}filter-trigger`,
+  tableSortIcon: `${prefix}sort-icon`,
 
   button: `${prefix}btn`,
   buttonPrimary: `${prefix}btn-primary`,
   filterIcon: `${prefix}filter-icon`,
 
-  tableCellRangeSelected:`${prefix}table-cell-range-selected`,
-  tableCellRangeTop:`${prefix}table-cell-range-top`,
-  tableCellRangeLeft:`${prefix}table-cell-range-left`,
-  tableCellRangeBottom:`${prefix}table-cell-range-bottom`,
-  tableCellRangeRight:`${prefix}table-cell-range-right`,
+  rangeSelection: `${prefix}range-selection`,
+  tableCellRangeSingleCell: `${prefix}table-cell-range-single-cell`,
+  tableCellRangeSelected: `${prefix}table-cell-range-selected`,
+  tableCellRangeTop: `${prefix}table-cell-range-top`,
+  tableCellRangeLeft: `${prefix}table-cell-range-left`,
+  tableCellRangeBottom: `${prefix}table-cell-range-bottom`,
+  tableCellRangeRight: `${prefix}table-cell-range-right`,
 
   fixedLeft: `${prefix}fixed-left`,
   fixedRight: `${prefix}fixed-right`,
@@ -206,7 +208,7 @@ export const defaultCSSVariables = {
   '--primary-color': '#5582F3',
   '--primary-color-level1': 'rgb(242, 248, 255)',
   '--primary-color-level2': 'rgb(135, 173, 255)',
-  '--icon-color': '#bfbfbf',
+  '--icon-color': '#666666',
   '--strong-border-color': '#d9d9d9',
 
   '--header-row-height': '32px',
@@ -263,7 +265,6 @@ export const StyledArtTableWrapper = styled.div`
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    user-select:none;
   }
 
   .${Classes.tableHeader} {
@@ -311,7 +312,7 @@ export const StyledArtTableWrapper = styled.div`
   .${Classes.tableRow} {
     position: relative;
   }
-  .${Classes.tableBody} {
+  .${Classes.tableBody}, .${Classes.tableFooter}  {
     .${Classes.tableCellRangeSelected}{
       background-color: #e6effb !important;
     }
@@ -327,6 +328,10 @@ export const StyledArtTableWrapper = styled.div`
     .${Classes.tableCellRangeRight}{
       border-right: 1px solid #0E5FD8 !important;
     }
+  }
+  
+  .${Classes.rangeSelection} {
+    user-select:none;
   }
 
 
@@ -561,7 +566,7 @@ export const StyledArtTableWrapper = styled.div`
       filter: none;
       width: 100%;
       height: 100%;
-      overflow: auto;
+      overflow: hidden;//列全部固定时，存在双横向滚动条
       display: flex;
       position: relative;
       flex-direction: column;
@@ -590,6 +595,13 @@ export const StyledArtTableWrapper = styled.div`
     &.active{
       color:var(--primary-color);
     }
+    padding: 6px 4px;
+    &:hover{
+      background-color: #e5e5e5;
+    }
+  }
+  .${Classes.filterIcon} {
+    display: flex
   }
   //#endregion
 
