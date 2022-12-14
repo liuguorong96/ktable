@@ -24,7 +24,7 @@ export interface FilterFeatureOptions {
   mode?: 'single' | 'multiple'
 
   /** 过滤图标 */
-  filterIcon?:ReactNode
+  filterIcon?: ReactNode | ((filtered: boolean) => ReactNode)
 
   /** 是否对触发弹出过滤面板 的 click 事件调用 event.stopPropagation() */
   stopClickEventPropagation?: boolean
@@ -83,13 +83,15 @@ export function filter (opts: FilterFeatureOptions = {}) {
 
           const filterPanel: FilterPanel = col.features?.filterPanel
 
+          const colFilterIcon: React.ReactNode = col.features?.filterIcon ?? filterIcon
+
           result.title = [
             ...([].concat(result.title ?? [internals.safeRenderHeader({ ...col, title: null })])),
             (
               <Filter
                 key="filter"
                 FilterPanelContent={filterPanel}
-                filterIcon={filterIcon}
+                filterIcon={colFilterIcon}
                 filterModel={inputFiltersMap.get(col.code)}
                 setFilterModel={handleFilterChanged}
                 setFilter={setFilter}

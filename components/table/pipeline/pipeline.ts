@@ -54,7 +54,7 @@ export class TablePipeline {
 
   private _columns: any[]
 
-  private _footerDataSource: any[]
+  private _footerDataSource?: any[]
 
   static defaultIndents: TablePipelineIndentsConfig = {
     iconIndent: -8,
@@ -253,24 +253,21 @@ export class TablePipeline {
     result.setTableWidth = (tableWidth: number) => {
       const preTableWidth = this.getStateAtKey(tableWidthKey)
       if (preTableWidth !== tableWidth) {
-        this.setStateAtKey(tableWidthKey, tableWidth)
+        tableWidth && this.setStateAtKey(tableWidthKey, tableWidth)
       }
     }
     result.setTableDomHelper = (domHelper) => {
       this.ref.current.domHelper = domHelper
     }
 
-    // if (this.getFeatureOptions(rangeSelectionKey)) {
-    //   result.clearRangeSelectionStatus = () => {
-    //     const { rangeSelectedChange } = this.getFeatureOptions(rangeSelectionKey)
-    //     const rangeSelection = this.getStateAtKey(rangeSelectionKey)
-    //     if (rangeSelection) {
-    //       rangeSelectedChange?.(null)
-    //     }
-    //   }
-    // }
-
     return result
+  }
+
+  /**
+   * 清除范围选中内容
+   */
+  clearRangeSelection () {
+    this.setStateAtKey(rangeSelectionKey, null)
   }
 }
 

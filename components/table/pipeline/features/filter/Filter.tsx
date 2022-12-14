@@ -6,12 +6,13 @@ import { Classes } from '../../../base/styles'
 import { FilterPanel as FilterPanelType, DefaultFilterPanelProps, CustomeFilterPanelProps } from '../../../interfaces'
 import FilterPanel from './FilterPanel'
 import DefaultFilterContent from './DefaultFilterContent'
+import DefaultFilterIcon from './DefaultFilterIcon'
 
 import { calculatePopupRelative } from '../../../utils'
 import { addResizeObserver } from '../../../base/utils'
 import cx from 'classnames'
 
-const HEADER_ICON_OFFSET_Y = 6 + 1 // padding-top + border
+const HEADER_ICON_OFFSET_Y = 8 + 1 // padding-top + border
 const HEADER_ICON_OFFSET_X = 16 + 1 // padding-left+ border
 
 interface FilterProps{
@@ -20,12 +21,19 @@ interface FilterProps{
   size?: number
   isFilterActive:boolean,
   FilterPanelContent?: FilterPanelType
-  filterIcon?:ReactNode
+  filterIcon?:ReactNode | ((filtered: boolean) => ReactNode)
   setFilterModel: DefaultFilterPanelProps['setFilterModel']
   filterModel: DefaultFilterPanelProps['filterModel']
   setFilter: CustomeFilterPanelProps['setFilter']
   onClick?: (e: React.MouseEvent) => any
   stopClickEventPropagation?: boolean
+}
+
+interface FilterPanelProps {
+  ele: HTMLElement
+  filterIcon: ReactNode
+  hidePanel: () => void
+  renderPanelContent: () => JSX.Element
 }
 
 const FilterIconSpanStyle = styled.span`
@@ -37,7 +45,7 @@ const FilterIconSpanStyle = styled.span`
   // height: 12px; 
 `
 
-function Panel ({ ele, filterIcon, hidePanel, renderPanelContent }) {
+function Panel ({ ele, filterIcon, hidePanel, renderPanelContent }: FilterPanelProps) {
   const filterPanelRef = React.useRef(null)
   const [position, setPosition] = React.useState(calculatePopupRelative(ele, document.body, { x: HEADER_ICON_OFFSET_X, y: HEADER_ICON_OFFSET_Y }))
   const style = {
@@ -76,10 +84,6 @@ function Filter ({ size = 12, style, className, FilterPanelContent, filterIcon, 
 
   const hidePanel = () => setShowPanel(false)
 
-  const handleMouseDown = (e) => {
-    e.stopPropagation()// 阻止触发拖拽
-  }
-
   const renderPanelContent = () => {
     if (FilterPanelContent) {
       return <FilterPanelContent
@@ -99,6 +103,11 @@ function Filter ({ size = 12, style, className, FilterPanelContent, filterIcon, 
   }
 
   const handleIconClick = (e) => {
+    // 只有当icon区域点击会触发面板展开
+    // 防止 createPortal 区域的点击触发该事件
+    if (!e.currentTarget.contains(e.target as HTMLElement)) {
+      return
+    }
     if (stopClickEventPropagation) {
       e.stopPropagation()
     }
@@ -109,40 +118,26 @@ function Filter ({ size = 12, style, className, FilterPanelContent, filterIcon, 
     'filter-panel-open': showPanel
   })
 
+  const displayFilterIcon: ReactNode = typeof filterIcon === 'function' ? filterIcon(isFilterActive) : filterIcon
+
   return (
     <FilterIconSpanStyle
       style={style}
       className={iconClassName}
-      onMouseDown={handleMouseDown}
-      ref={iconRef}
+      onClick={handleIconClick}
     >
-      <span className={Classes.filterIcon} onClick={handleIconClick}>
+      <span ref={iconRef} className={Classes.filterIcon}>
         {
-          filterIcon || <svg
-            width={size}
-            height={size}
-            viewBox="64 64 896 896"
-            focusable="false"
-            data-icon="filter"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              d="M349 838c0 17.7 14.2 32 31.8 32h262.4c17.6 0 31.8-14.3
-              31.8-32V642H349v196zm531.1-684H143.9c-24.5 0-39.8 26.7-27.5
-              48l221.3 376h348.8l221.3-376c12.1-21.3-3.2-48-27.7-48z"
-            ></path>
-          </svg>
+          displayFilterIcon || <DefaultFilterIcon width={size} height={size} />
         }
       </span>
       {showPanel &&
       createPortal(
         <Panel
-          ele ={iconRef.current}
-          filterIcon ={filterIcon}
-          hidePanel = {hidePanel}
-          renderPanelContent ={renderPanelContent}
-
+          ele={iconRef.current}
+          filterIcon={displayFilterIcon}
+          hidePanel={hidePanel}
+          renderPanelContent={renderPanelContent}
         />,
         document.body)}
     </FilterIconSpanStyle>
